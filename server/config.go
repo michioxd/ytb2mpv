@@ -12,7 +12,10 @@ func CheckEnv() {
 	pathMpv := viper.GetString("path_mpv")
 	pathYtdlp := viper.GetString("path_ytdlp")
 
-	switch CheckMPV(pathMpv) {
+	MPV_STATUS = CheckMPV(pathMpv)
+	YTDLP_STATUS = CheckYTDLP(pathYtdlp)
+
+	switch MPV_STATUS {
 	case 1:
 		SendNotify("(ytb2mpv) mpv Not Found", "mpv not found, please install mpv then add it into PATH or manually set the path in the setting", true)
 	case 2:
@@ -25,7 +28,7 @@ func CheckEnv() {
 		}
 	}
 
-	switch CheckYTDLP(pathYtdlp) {
+	switch YTDLP_STATUS {
 	case 1:
 		SendNotify("(ytb2mpv) yt-dlp Not Found", "yt-dlp not found, please install yt-dlp then add it into PATH or manually set the path in the setting", true)
 	case 2:
@@ -41,6 +44,8 @@ func CheckEnv() {
 }
 
 func InitCfg() {
+	exePath, _ := os.Executable()
+	APP_EXECUTABLE_PATH = exePath
 	configDir, _ := os.UserConfigDir()
 	viper.SetDefault("path_mpv", "")
 	viper.SetDefault("path_ytdlp", "")
@@ -64,4 +69,5 @@ func InitCfg() {
 	}
 
 	CheckEnv()
+	RegisterStartup(viper.GetBool("start_w_system"))
 }

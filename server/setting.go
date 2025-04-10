@@ -5,7 +5,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-func ShowSettingGUI() {
+func ShowSettingGUI(onUpdateSetting func(bool)) {
 	icon, _ := wui.NewIconFromExeResource(2)
 	settingWindowFont, _ := wui.NewFont(wui.FontDesc{
 		Name:   "Segoe UI",
@@ -37,6 +37,7 @@ func ShowSettingGUI() {
 	pathMpvEditBtn.SetText("Browse")
 	pathMpvEditBtn.SetOnClick(func() {
 		open := wui.NewFileOpenDialog()
+		open.SetInitialPath("C:\\")
 		open.SetTitle("Select mpv.exe executable")
 		open.AddFilter("Executable file", ".exe")
 		if accept, path := open.ExecuteSingleSelection(settingWindow); accept {
@@ -60,6 +61,7 @@ func ShowSettingGUI() {
 	pathYtDlpEditBtn.SetText("Browse")
 	pathYtDlpEditBtn.SetOnClick(func() {
 		open := wui.NewFileOpenDialog()
+		open.SetInitialPath("C:\\")
 		open.SetTitle("Select mpv.exe executable")
 		open.AddFilter("Executable file", ".exe")
 		if accept, path := open.ExecuteSingleSelection(settingWindow); accept {
@@ -110,6 +112,8 @@ func ShowSettingGUI() {
 				wui.MessageBoxError("Error", "Failed to save config file: "+err.Error())
 			}
 			CheckEnv()
+			RegisterStartup(startOnLogin.Checked())
+			onUpdateSetting(startOnLogin.Checked())
 			settingWindow.Close()
 		}()
 	})

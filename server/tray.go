@@ -18,6 +18,11 @@ func onTrayReady() {
 	systray.SetIcon(MainIconData)
 	systray.SetTitle("ytb2mpv")
 	systray.SetTooltip("ytb2mpv is running")
+	if RELEASE_MODE != "1" {
+		systray.AddMenuItem("Running in Debug mode", "").Disable()
+		systray.AddMenuItem("Start on login has been disabled!", "").Disable()
+		systray.AddSeparator()
+	}
 	ytb2mpvInfo := systray.AddMenuItem("ytb2mpv daemon v"+VERSION+isDebug, "ytb2mpv daemon v"+VERSION+isDebug)
 	ytb2mpvInfo.SetIcon(MainIconData)
 	systray.AddSeparator()
@@ -33,9 +38,11 @@ func onTrayReady() {
 				if startOnLoginCheckbox.Checked() {
 					startOnLoginCheckbox.Uncheck()
 					viper.Set("start_w_system", false)
+					RegisterStartup(false)
 				} else {
 					startOnLoginCheckbox.Check()
 					viper.Set("start_w_system", true)
+					RegisterStartup(true)
 				}
 				if err := viper.WriteConfig(); err != nil {
 					SendNotify("Error", "Failed to save config file: "+err.Error(), true)
@@ -45,7 +52,13 @@ func onTrayReady() {
 			case <-ytb2mpvInfo.ClickedCh:
 				browser.OpenURL("https://github.com/michioxd/ytb2mpv")
 			case <-openSettingUI.ClickedCh:
-				ShowSettingGUI()
+				ShowSettingGUI(func(b bool) {
+					if b {
+						startOnLoginCheckbox.Check()
+					} else {
+						startOnLoginCheckbox.Uncheck()
+					}
+				})
 			case <-quitDaemon.ClickedCh:
 				systray.Quit()
 			}

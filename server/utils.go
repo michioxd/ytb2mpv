@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"os/exec"
 	"path/filepath"
 	"regexp"
@@ -9,6 +10,7 @@ import (
 	"syscall"
 
 	"github.com/gen2brain/beeep"
+	"golang.org/x/sys/windows/registry"
 )
 
 func SendNotify(title, message string, isAlert bool) {
@@ -27,7 +29,7 @@ func SendNotify(title, message string, isAlert bool) {
 }
 
 func compareVersions(found, required []int) bool {
-	for i := 0; i < len(required); i++ {
+	for i := range required {
 		if i >= len(found) {
 			return false
 		}
@@ -117,4 +119,28 @@ func CheckYTDLP(path ...string) int {
 		return 0
 	}
 	return 3
+}
+
+func RegisterStartup(b bool) error {
+	if RELEASE_MODE != "1" {
+		log.Println("Debug mode, skip register startup")
+		return nil
+	}
+	if b {
+		key, _, err := registry.CreateKey(registry.CURRENT_USER, `SOFTWARE\Microsoft\Windows\CurrentVersion\Run`, registry.SET_VALUE)
+		if err != nil {
+			SendNotify("(ytb2mpv) Error", "Failed to create registry key: "+err.Error(), true)
+		}
+
+		defer key.Close()
+		return key.SetStringValue("ytb2mpv", APP_EXECUTABLE_PATH)
+	} else {
+		key, err := registry.OpenKey(registry.CURRENT_USER, `SOFTWARE\Microsoft\Windows\CurrentVersion\Run`, registry.SET_VALUE)
+		if err != nil {
+			SendNotify("(ytb2mpv) Error", "Failed to open registry key: "+err.Error(), true)
+		}
+		defer key.Close()
+
+		return key.DeleteValue("ytb2mpv")
+	}
 }
