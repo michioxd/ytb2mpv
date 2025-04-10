@@ -9,10 +9,16 @@ import (
 )
 
 func onTrayReady() {
+	isDebug := ""
+
+	if RELEASE_MODE != "1" {
+		isDebug = " (Debug)"
+	}
+
 	systray.SetIcon(MainIconData)
 	systray.SetTitle("ytb2mpv")
 	systray.SetTooltip("ytb2mpv is running")
-	ytb2mpvInfo := systray.AddMenuItem("ytb2mpv daemon v"+VERSION, "ytb2mpv daemon v"+VERSION)
+	ytb2mpvInfo := systray.AddMenuItem("ytb2mpv daemon v"+VERSION+isDebug, "ytb2mpv daemon v"+VERSION+isDebug)
 	ytb2mpvInfo.SetIcon(MainIconData)
 	systray.AddSeparator()
 	checkForUpdate := systray.AddMenuItem("Check for update", "Check for update")
