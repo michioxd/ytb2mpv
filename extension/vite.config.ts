@@ -14,6 +14,9 @@ export default defineConfig({
       ignoreCustomComments: []
     })
   ],
+  legacy: {
+    skipWebSocketTokenCheck: true
+  },
   build: {
     cssCodeSplit: false,
     minify: "terser",

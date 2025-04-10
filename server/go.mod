@@ -15,6 +15,7 @@ require (
 	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/go-toast/toast v0.0.0-20190211030409-01e6764cf0a4 // indirect
 	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
+	github.com/goccy/go-json v0.10.5 // indirect
 	github.com/godbus/dbus/v5 v5.1.0 // indirect
 	github.com/gonutz/w32/v2 v2.2.2 // indirect
 	github.com/gonutz/wui/v2 v2.8.1 // indirect

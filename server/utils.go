@@ -90,6 +90,7 @@ func CheckMPV(path ...string) int {
 	required := parseVersion("0.39.0")
 
 	if compareVersions(version, required) {
+		MPV_VERSION = match[1]
 		return 0
 	}
 
@@ -116,6 +117,7 @@ func CheckYTDLP(path ...string) int {
 	required := parseVersion("2025.02.19")
 
 	if compareVersions(version, required) {
+		YTDLP_VERSION = versionStr
 		return 0
 	}
 	return 3

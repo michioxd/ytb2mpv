@@ -49,6 +49,7 @@ func InitCfg() {
 	configDir, _ := os.UserConfigDir()
 	viper.SetDefault("path_mpv", "")
 	viper.SetDefault("path_ytdlp", "")
+	viper.SetDefault("auto_check_update", true)
 	viper.SetDefault("start_w_system", true)
 
 	viper.SetConfigName("ytb2mpv")

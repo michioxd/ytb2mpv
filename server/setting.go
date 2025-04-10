@@ -62,7 +62,7 @@ func ShowSettingGUI(onUpdateSetting func(bool)) {
 	pathYtDlpEditBtn.SetOnClick(func() {
 		open := wui.NewFileOpenDialog()
 		open.SetInitialPath("C:\\")
-		open.SetTitle("Select mpv.exe executable")
+		open.SetTitle("Select yt-dlp.exe executable")
 		open.AddFilter("Executable file", ".exe")
 		if accept, path := open.ExecuteSingleSelection(settingWindow); accept {
 			pathYtDlpEdit.SetText(path)
@@ -90,6 +90,12 @@ func ShowSettingGUI(onUpdateSetting func(bool)) {
 	startOnLogin.SetChecked(viper.GetBool("start_w_system"))
 	settingWindow.Add(startOnLogin)
 
+	autoCheckUpdate := wui.NewCheckBox()
+	autoCheckUpdate.SetBounds(130, 127, 180, 17)
+	autoCheckUpdate.SetText("Auto check for update")
+	autoCheckUpdate.SetChecked(viper.GetBool("auto_check_update"))
+	settingWindow.Add(autoCheckUpdate)
+
 	saveBtn := wui.NewButton()
 	saveBtn.SetBounds(270, 145, 60, 25)
 	saveBtn.SetText("Save")
@@ -101,6 +107,7 @@ func ShowSettingGUI(onUpdateSetting func(bool)) {
 		pathMpvEditBtn.SetEnabled(false)
 		pathYtDlpEditBtn.SetEnabled(false)
 		startOnLogin.SetEnabled(false)
+		autoCheckUpdate.SetEnabled(false)
 		exitBtn.SetEnabled(false)
 		saveBtn.SetText("Saving...")
 
@@ -108,6 +115,7 @@ func ShowSettingGUI(onUpdateSetting func(bool)) {
 			viper.Set("path_mpv", pathMpvEdit.Text())
 			viper.Set("path_ytdlp", pathYtDlpEdit.Text())
 			viper.Set("start_w_system", startOnLogin.Checked())
+			viper.Set("auto_check_update", autoCheckUpdate.Checked())
 			if err := viper.WriteConfig(); err != nil {
 				wui.MessageBoxError("Error", "Failed to save config file: "+err.Error())
 			}
