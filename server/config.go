@@ -51,6 +51,7 @@ func InitCfg() {
 	viper.SetDefault("path_ytdlp", "")
 	viper.SetDefault("auto_check_update", true)
 	viper.SetDefault("start_w_system", true)
+	viper.SetDefault("mpv_args", "--ytdl-format=bestvideo+bestaudio")
 
 	viper.SetConfigName("ytb2mpv")
 	viper.SetConfigType("yaml")

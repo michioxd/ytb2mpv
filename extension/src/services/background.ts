@@ -11,6 +11,7 @@ class Ytb2MpvClient {
 
     private onOpen: (event: Event) => void = () => {
         this.connected = true;
+        chrome.runtime.sendMessage({ connected: true });
         console.log("Connected to the server");
     }
 
@@ -72,3 +73,16 @@ class Ytb2MpvClient {
 const ytb2mpvClient = new Ytb2MpvClient();
 
 ytb2mpvClient.connect();
+
+chrome.runtime.onMessage.addListener((message) => {
+    if (message.getServerInfo) {
+        chrome.runtime.sendMessage({
+            serverVersion: ytb2mpvClient.serverVersion,
+            mpvStatus: ytb2mpvClient.mpvStatus,
+            ytdlpStatus: ytb2mpvClient.ytdlpStatus,
+            mpvVersion: ytb2mpvClient.mpvVersion,
+            ytdlpVersion: ytb2mpvClient.ytdlpVersion
+        });
+        return;
+    }
+});
