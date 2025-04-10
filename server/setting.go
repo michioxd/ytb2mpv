@@ -1,8 +1,12 @@
 package main
 
-import "github.com/gonutz/wui/v2"
+import (
+	"github.com/gonutz/wui/v2"
+	"github.com/spf13/viper"
+)
 
 func ShowSettingGUI() {
+	icon, _ := wui.NewIconFromExeResource(2)
 	settingWindowFont, _ := wui.NewFont(wui.FontDesc{
 		Name:   "Segoe UI",
 		Height: -11,
@@ -16,6 +20,7 @@ func ShowSettingGUI() {
 	settingWindow.SetHasMinButton(false)
 	settingWindow.SetHasMaxButton(false)
 	settingWindow.SetResizable(false)
+	settingWindow.SetIcon(icon)
 
 	label1 := wui.NewLabel()
 	label1.SetBounds(15, 15, 150, 13)
@@ -24,11 +29,20 @@ func ShowSettingGUI() {
 
 	pathMpvEdit := wui.NewEditLine()
 	pathMpvEdit.SetBounds(15, 34, 295, 20)
+	pathMpvEdit.SetText(viper.GetString("path_mpv"))
 	settingWindow.Add(pathMpvEdit)
 
 	pathMpvEditBtn := wui.NewButton()
 	pathMpvEditBtn.SetBounds(315, 33, 80, 22)
 	pathMpvEditBtn.SetText("Browse")
+	pathMpvEditBtn.SetOnClick(func() {
+		open := wui.NewFileOpenDialog()
+		open.SetTitle("Select mpv.exe executable")
+		open.AddFilter("Executable file", ".exe")
+		if accept, path := open.ExecuteSingleSelection(settingWindow); accept {
+			pathMpvEdit.SetText(path)
+		}
+	})
 	settingWindow.Add(pathMpvEditBtn)
 
 	label2 := wui.NewLabel()
@@ -38,11 +52,20 @@ func ShowSettingGUI() {
 
 	pathYtDlpEdit := wui.NewEditLine()
 	pathYtDlpEdit.SetBounds(15, 84, 295, 20)
+	pathYtDlpEdit.SetText(viper.GetString("path_ytdlp"))
 	settingWindow.Add(pathYtDlpEdit)
 
 	pathYtDlpEditBtn := wui.NewButton()
 	pathYtDlpEditBtn.SetBounds(315, 83, 80, 22)
 	pathYtDlpEditBtn.SetText("Browse")
+	pathYtDlpEditBtn.SetOnClick(func() {
+		open := wui.NewFileOpenDialog()
+		open.SetTitle("Select mpv.exe executable")
+		open.AddFilter("Executable file", ".exe")
+		if accept, path := open.ExecuteSingleSelection(settingWindow); accept {
+			pathYtDlpEdit.SetText(path)
+		}
+	})
 	settingWindow.Add(pathYtDlpEditBtn)
 
 	exitBtn := wui.NewButton()
@@ -53,11 +76,6 @@ func ShowSettingGUI() {
 	})
 	settingWindow.Add(exitBtn)
 
-	saveBtn := wui.NewButton()
-	saveBtn.SetBounds(270, 145, 60, 25)
-	saveBtn.SetText("Save")
-	settingWindow.Add(saveBtn)
-
 	label3 := wui.NewLabel()
 	label3.SetEnabled(false)
 	label3.SetBounds(15, 150, 200, 13)
@@ -67,16 +85,37 @@ func ShowSettingGUI() {
 	startOnLogin := wui.NewCheckBox()
 	startOnLogin.SetBounds(15, 127, 121, 17)
 	startOnLogin.SetText("Start on Sign in")
-	startOnLogin.SetChecked(true)
+	startOnLogin.SetChecked(viper.GetBool("start_w_system"))
 	settingWindow.Add(startOnLogin)
 
-	label4Font, _ := wui.NewFont(wui.FontDesc{
-		Name:   "Segoe UI",
-		Height: -11,
+	saveBtn := wui.NewButton()
+	saveBtn.SetBounds(270, 145, 60, 25)
+	saveBtn.SetText("Save")
+
+	saveBtn.SetOnClick(func() {
+		saveBtn.SetEnabled(false)
+		pathMpvEdit.SetEnabled(false)
+		pathYtDlpEdit.SetEnabled(false)
+		pathMpvEditBtn.SetEnabled(false)
+		pathYtDlpEditBtn.SetEnabled(false)
+		startOnLogin.SetEnabled(false)
+		exitBtn.SetEnabled(false)
+		saveBtn.SetText("Saving...")
+
+		go func() {
+			viper.Set("path_mpv", pathMpvEdit.Text())
+			viper.Set("path_ytdlp", pathYtDlpEdit.Text())
+			viper.Set("start_w_system", startOnLogin.Checked())
+			if err := viper.WriteConfig(); err != nil {
+				wui.MessageBoxError("Error", "Failed to save config file: "+err.Error())
+			}
+			CheckEnv()
+			settingWindow.Close()
+		}()
 	})
+	settingWindow.Add(saveBtn)
 
 	label4 := wui.NewLabel()
-	label4.SetFont(label4Font)
 	label4.SetEnabled(false)
 	label4.SetBounds(15, 108, 379, 13)
 	label4.SetText("If unspecified, ytb2mpv will use the system PATH.")

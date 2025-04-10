@@ -5,6 +5,7 @@ import (
 
 	"github.com/getlantern/systray"
 	"github.com/pkg/browser"
+	"github.com/spf13/viper"
 )
 
 func onTrayReady() {
@@ -15,7 +16,7 @@ func onTrayReady() {
 	ytb2mpvInfo.SetIcon(MainIconData)
 	systray.AddSeparator()
 	checkForUpdate := systray.AddMenuItem("Check for update", "Check for update")
-	startOnLoginCheckbox := systray.AddMenuItemCheckbox("Start on login", "Start ytb2mpv on login", true)
+	startOnLoginCheckbox := systray.AddMenuItemCheckbox("Start on login", "Start ytb2mpv on login", viper.GetBool("start_w_system"))
 	openSettingUI := systray.AddMenuItem("Open Setting", "Open Setting to customize path and startup options")
 	quitDaemon := systray.AddMenuItem("Quit", "Quit ytb2mpv")
 
@@ -25,8 +26,13 @@ func onTrayReady() {
 			case <-startOnLoginCheckbox.ClickedCh:
 				if startOnLoginCheckbox.Checked() {
 					startOnLoginCheckbox.Uncheck()
+					viper.Set("start_w_system", false)
 				} else {
 					startOnLoginCheckbox.Check()
+					viper.Set("start_w_system", true)
+				}
+				if err := viper.WriteConfig(); err != nil {
+					SendNotify("Error", "Failed to save config file: "+err.Error(), true)
 				}
 			case <-checkForUpdate.ClickedCh:
 				SendNotify("ytb2mpv", "Checking for update...", false)

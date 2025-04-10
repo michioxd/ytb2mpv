@@ -39,7 +39,7 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func RunWSServer() {
-	http.HandleFunc("/ws", wsHandler)
+	http.HandleFunc("/ytb2mpv", wsHandler)
 	fmt.Println("Server started on :" + SERVER_PORT)
 	http.ListenAndServe(":"+SERVER_PORT, nil)
 }
