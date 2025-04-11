@@ -9,3 +9,12 @@ export interface ServerResponseInfo {
     mpv_version: string;
     ytdlp_version: string;
 }
+
+export interface ClientGetStatus {
+    connected: boolean;
+    serverVersion: string;
+    mpvStatus: number;
+    ytdlpStatus: number;
+    mpvVersion: string;
+    ytdlpVersion: string;
+}

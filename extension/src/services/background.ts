@@ -1,4 +1,4 @@
-import { ServerResponseInfo, WSResponse } from "./types";
+import { ClientGetStatus, ServerResponseInfo, WSResponse } from "./types";
 
 class Ytb2MpvClient {
     public socket: WebSocket | null = null;
@@ -11,7 +11,7 @@ class Ytb2MpvClient {
 
     private onOpen: (event: Event) => void = () => {
         this.connected = true;
-        chrome.runtime.sendMessage({ connected: true });
+        this.sendToClient("status");
         console.log("Connected to the server");
     }
 
@@ -40,17 +40,24 @@ class Ytb2MpvClient {
 
     private onClose: (event: CloseEvent) => void = () => {
         console.log("Disconnected, reconnecting...");
+        this.reset();
         setTimeout(() => {
             this.connect();
         }, 1000);
     }
 
-    constructor() {
-        this.socket = null;
+    private reset() {
         this.connected = false;
         this.serverVersion = "";
         this.mpvStatus = 0;
         this.ytdlpStatus = 0;
+        this.mpvVersion = "";
+        this.ytdlpVersion = "";
+        this.sendToClient("status");
+    }
+
+    constructor() {
+        this.reset();
     }
 
     public connect() {
@@ -68,6 +75,25 @@ class Ytb2MpvClient {
         this.socket.addEventListener("error", this.onError);
         this.socket.addEventListener("close", this.onClose);
     }
+
+    public sendToClient(type: "status") {
+        let data: any = {};
+        switch (type) {
+            case "status":
+                data = {
+                    type: "status",
+                    connected: this.connected,
+                    serverVersion: this.serverVersion,
+                    mpvStatus: this.mpvStatus,
+                    ytdlpStatus: this.ytdlpStatus,
+                    mpvVersion: this.mpvVersion,
+                    ytdlpVersion: this.ytdlpVersion
+                } as ClientGetStatus;
+                break;
+        }
+        chrome.runtime.sendMessage(data);
+
+    }
 }
 
 const ytb2mpvClient = new Ytb2MpvClient();
@@ -75,14 +101,8 @@ const ytb2mpvClient = new Ytb2MpvClient();
 ytb2mpvClient.connect();
 
 chrome.runtime.onMessage.addListener((message) => {
-    if (message.getServerInfo) {
-        chrome.runtime.sendMessage({
-            serverVersion: ytb2mpvClient.serverVersion,
-            mpvStatus: ytb2mpvClient.mpvStatus,
-            ytdlpStatus: ytb2mpvClient.ytdlpStatus,
-            mpvVersion: ytb2mpvClient.mpvVersion,
-            ytdlpVersion: ytb2mpvClient.ytdlpVersion
-        });
+    if (message.getStatus) {
+        ytb2mpvClient.sendToClient("status");
         return;
     }
 });

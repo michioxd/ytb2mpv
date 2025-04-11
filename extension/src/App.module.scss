@@ -1,0 +1,30 @@
+.Main {
+    display: flex;
+    position: relative;
+    flex-direction: column;
+    margin: 0.5rem;
+    gap: 0.5rem;
+
+    .Status {
+        width: 100%;
+        border-radius: 4px;
+        background-color: var(--card-bg-color);
+        padding: 0.5rem;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 0.5rem;
+
+        &[data-status="error"] {
+            background-color: var(--card-bg-error);
+        }
+
+        &[data-status="success"] {
+            background-color: var(--card-bg-success);
+        }
+
+        .Icon {
+            width: 30px;
+        }
+    }
+}

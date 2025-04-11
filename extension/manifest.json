@@ -1,4 +1,5 @@
 {
+    "$schema": "https://json.schemastore.org/chrome-manifest",
     "manifest_version": 3,
     "name": "ytb2mpv - Open YouTube Videos in mpv",
     "short_name": "ytb2mpv",
@@ -16,6 +17,17 @@
         "unlimitedStorage",
         "downloads"
     ],
+    "content_scripts": [
+        {
+            "js": [
+                "src/contents/injector.ts"
+            ],
+            "matches": [
+                "https://*.youtube.com/*"
+            ],
+            "run_at": "document_start"
+        }
+    ],
     "host_permissions": [
         "http://localhost:53918/*"
     ],
@@ -27,5 +39,17 @@
         "name": "michioxd",
         "email": "michio.haiyaku@gmail.com"
     },
-    "homepage_url": "https://github.com/michioxd/ytb2mpv"
+    "homepage_url": "https://github.com/michioxd/ytb2mpv",
+    "web_accessible_resources": [
+        {
+            "resources": [
+                "vendor/*",
+                "node_modules/*",
+                "assets/*"
+            ],
+            "matches": [
+                "https://*.youtube.com/*"
+            ]
+        }
+    ]
 }
