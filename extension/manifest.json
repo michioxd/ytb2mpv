@@ -6,28 +6,14 @@
     "version": "0.0.1",
     "description": "Open your favorite videos in mpv with a single click.",
     "action": {
-        "default_popup": "index.html"
+        "default_popup": "index.html",
+        "default_title": "ytb2mpv"
     },
     "icons": {
         "48": "assets/icon48.png",
         "128": "assets/icon128.png"
     },
-    "permissions": [
-        "storage",
-        "unlimitedStorage",
-        "downloads"
-    ],
-    "content_scripts": [
-        {
-            "js": [
-                "src/contents/injector.ts"
-            ],
-            "matches": [
-                "https://*.youtube.com/*"
-            ],
-            "run_at": "document_start"
-        }
-    ],
+    "permissions": [],
     "host_permissions": [
         "http://localhost:53918/*"
     ],
@@ -43,9 +29,7 @@
     "web_accessible_resources": [
         {
             "resources": [
-                "vendor/*",
-                "node_modules/*",
-                "assets/*"
+                "*"
             ],
             "matches": [
                 "https://*.youtube.com/*"

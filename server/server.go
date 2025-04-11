@@ -1,8 +1,9 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"net/http"
+	"os"
 
 	"github.com/goccy/go-json"
 	"github.com/gorilla/websocket"
@@ -14,7 +15,7 @@ type MsgServerInfo struct {
 	YTDLP_STATUS   int    `json:"ytdlp_status"`
 	SERVER_VERSION string `json:"server_version"`
 	MPV_VERSION    string `json:"mpv_version"`
-	YTDLP_VERSION  string `json:"yt-dlp_version"`
+	YTDLP_VERSION  string `json:"ytdlp_version"`
 }
 
 var upgrader = websocket.Upgrader{
@@ -26,25 +27,25 @@ var upgrader = websocket.Upgrader{
 func SendJsonMsg(conn *websocket.Conn, msg any) {
 	jsonData, err := json.Marshal(msg)
 	if err != nil {
-		fmt.Println("Error marshaling JSON:", err)
+		log.Println("Error marshaling JSON:", err)
 		return
 	}
 
 	err = conn.WriteMessage(websocket.TextMessage, jsonData)
 	if err != nil {
-		fmt.Println("Error sending message:", err)
+		log.Println("Error sending message:", err)
 	}
 }
 
 func wsHandler(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		fmt.Println("Upgrade error:", err)
+		log.Println("Upgrade error:", err)
 		return
 	}
 	defer conn.Close()
 
-	fmt.Println("Client connected")
+	log.Println("Client connected")
 
 	SendJsonMsg(conn, MsgServerInfo{
 		TYPE:           "server_info",
@@ -58,16 +59,35 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 	for {
 		_, message, err := conn.ReadMessage()
 		if err != nil {
-			fmt.Println("Read error:", err)
+			log.Println("Read error:", err)
 			break
 		}
-		fmt.Printf("Received: %s\n", message)
+
+		// parse message to JSON
+		var msg map[string]interface{}
+		err = json.Unmarshal(message, &msg)
+		if err != nil {
+			log.Println("Error unmarshaling JSON:", err)
+			continue
+		}
+
+		msgType, ok := msg["type"].(string)
+
+		if !ok {
+			log.Println("Invalid message format")
+			continue
+		}
+
+		switch msgType {
+		case "shutdown":
+			log.Println("Byebye")
+			os.Exit(0)
+		}
 
 	}
 }
 
 func RunWSServer() {
 	http.HandleFunc("/ytb2mpv", wsHandler)
-	fmt.Println("Server started on :" + SERVER_PORT)
-	http.ListenAndServe(":"+SERVER_PORT, nil)
+	http.ListenAndServe("127.0.0.1:"+SERVER_PORT, nil)
 }

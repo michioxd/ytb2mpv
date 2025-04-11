@@ -7,7 +7,6 @@
 
     .Status {
         width: 100%;
-        border-radius: 4px;
         background-color: var(--card-bg-color);
         padding: 0.5rem;
         display: flex;
@@ -23,8 +22,32 @@
             background-color: var(--card-bg-success);
         }
 
+        &[data-status="warning"] {
+            background-color: var(--card-bg-warning);
+        }
+
         .Icon {
             width: 30px;
         }
     }
+
+
+    .Action {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        width: 100%;
+        margin-top: 0.5rem;
+    }
+
+    .Info {
+        font-family: monospace, 'Courier New', Courier, sans-serif;
+    }
+
+    .Me {
+        text-align: center;
+        color: gray;
+        font-size: 10px;
+    }
+
 }

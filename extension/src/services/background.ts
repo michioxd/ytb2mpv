@@ -11,7 +11,6 @@ class Ytb2MpvClient {
 
     private onOpen: (event: Event) => void = () => {
         this.connected = true;
-        this.sendToClient("status");
         console.log("Connected to the server");
     }
 
@@ -27,7 +26,7 @@ class Ytb2MpvClient {
                     this.ytdlpStatus = d.ytdlp_status;
                     this.mpvVersion = d.mpv_version;
                     this.ytdlpVersion = d.ytdlp_version;
-
+                    this.sendToClient("status");
                     break;
                 }
         }
@@ -76,6 +75,14 @@ class Ytb2MpvClient {
         this.socket.addEventListener("close", this.onClose);
     }
 
+    public reconnect() {
+        if (this.socket) {
+            this.socket.close();
+            this.socket = null;
+        }
+        this.connect();
+    }
+
     public sendToClient(type: "status") {
         let data: any = {};
         switch (type) {
@@ -92,7 +99,14 @@ class Ytb2MpvClient {
                 break;
         }
         chrome.runtime.sendMessage(data);
+    }
 
+    public sendToServer(data: any) {
+        if (this.socket && this.connected) {
+            this.socket.send(JSON.stringify(data));
+        } else {
+            console.error("Not connected to the server");
+        }
     }
 }
 
@@ -103,6 +117,16 @@ ytb2mpvClient.connect();
 chrome.runtime.onMessage.addListener((message) => {
     if (message.getStatus) {
         ytb2mpvClient.sendToClient("status");
+        return;
+    }
+
+    if (message.shutdown) {
+        ytb2mpvClient.sendToServer({ type: "shutdown" });
+        return;
+    }
+
+    if (message.reconnect) {
+        ytb2mpvClient.reconnect();
         return;
     }
 });
