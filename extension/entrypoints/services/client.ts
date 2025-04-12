@@ -8,6 +8,7 @@ class Ytb2MpvClient {
     public ytdlpStatus: number = 0;
     public mpvVersion: string = "";
     public ytdlpVersion: string = "";
+    private isReconnecting: boolean = false;
 
     private onOpen: (event: Event) => void = () => {
         this.connected = true;
@@ -40,6 +41,11 @@ class Ytb2MpvClient {
     private onClose: (event: CloseEvent) => void = () => {
         console.log("Disconnected, reconnecting...");
         this.reset();
+        if (this.isReconnecting) {
+            this.connect();
+            this.isReconnecting = false;
+            return;
+        }
         setTimeout(() => {
             this.connect();
         }, 1000);
@@ -68,7 +74,7 @@ class Ytb2MpvClient {
             this.socket?.removeEventListener("close", this.onClose);
         }
         this.connected = false;
-        this.socket = new WebSocket("ws://localhost:53918/ytb2mpv");
+        this.socket = new WebSocket("ws://127.0.0.1:53918/ytb2mpv");
         this.socket.addEventListener("open", this.onOpen);
         this.socket.addEventListener("message", this.onMessage);
         this.socket.addEventListener("error", this.onError);
@@ -76,11 +82,12 @@ class Ytb2MpvClient {
     }
 
     public reconnect() {
+        if (this.isReconnecting) return;
+        this.isReconnecting = true;
         if (this.socket) {
             this.socket.close();
             this.socket = null;
         }
-        this.connect();
     }
 
     public sendToClient(type: "status") {
@@ -98,7 +105,7 @@ class Ytb2MpvClient {
                 } as ClientGetStatus;
                 break;
         }
-        chrome.runtime.sendMessage(data);
+        browser.runtime.sendMessage(data);
     }
 
     public sendToServer(data: any) {
@@ -110,23 +117,4 @@ class Ytb2MpvClient {
     }
 }
 
-const ytb2mpvClient = new Ytb2MpvClient();
-
-ytb2mpvClient.connect();
-
-chrome.runtime.onMessage.addListener((message) => {
-    if (message.getStatus) {
-        ytb2mpvClient.sendToClient("status");
-        return;
-    }
-
-    if (message.shutdown) {
-        ytb2mpvClient.sendToServer({ type: "shutdown" });
-        return;
-    }
-
-    if (message.reconnect) {
-        ytb2mpvClient.reconnect();
-        return;
-    }
-});
+export default Ytb2MpvClient;
