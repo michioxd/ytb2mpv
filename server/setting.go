@@ -16,7 +16,7 @@ func ShowSettingGUI(onUpdateSetting func(bool)) {
 
 	settingWindow := wui.NewWindow()
 	settingWindow.SetFont(settingWindowFont)
-	settingWindow.SetInnerSize(410, 220)
+	settingWindow.SetInnerSize(410, 225)
 	settingWindow.SetPosition(100, 100)
 	settingWindow.SetTitle("ytb2mpv setting")
 	settingWindow.SetHasMinButton(false)

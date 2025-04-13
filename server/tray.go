@@ -26,6 +26,7 @@ func onTrayReady() {
 	mpvInfo, ytDlpInfo := createDependencyInfoMenuItems()
 
 	systray.AddSeparator()
+	openYtDlpDownloader := systray.AddMenuItem("Open yt-dlp downloader UI", "Open yt-dlp downloader UI")
 	checkForUpdate := systray.AddMenuItem("Check for update", "Check for update")
 	startOnLoginCheckbox := systray.AddMenuItemCheckbox(
 		"Start on login",
@@ -36,6 +37,7 @@ func onTrayReady() {
 	quitDaemon := systray.AddMenuItem("Quit", "Quit ytb2mpv")
 
 	go handleMenuItemClicks(
+		openYtDlpDownloader,
 		startOnLoginCheckbox,
 		checkForUpdate,
 		ytb2mpvInfo,
@@ -47,6 +49,7 @@ func onTrayReady() {
 }
 
 func handleMenuItemClicks(
+	openYtDlpDownloader *systray.MenuItem,
 	startOnLoginCheckbox *systray.MenuItem,
 	checkForUpdate *systray.MenuItem,
 	ytb2mpvInfo *systray.MenuItem,
@@ -57,6 +60,9 @@ func handleMenuItemClicks(
 ) {
 	for {
 		select {
+		case <-openYtDlpDownloader.ClickedCh:
+			DownloaderGUI("")
+
 		case <-startOnLoginCheckbox.ClickedCh:
 			handleStartOnLogin(startOnLoginCheckbox)
 
